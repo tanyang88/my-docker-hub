@@ -1,0 +1,15 @@
+services:
+  my-docker-hub:
+    build: .
+    image: my-docker-hub:latest
+    container_name: my-docker-hub
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATA_DIR=/app/data
+      - TZ=Asia/Shanghai
+    volumes:
+      # 数据库和上传的图标都放在宿主机 ./data 下，容器重建不丢数据
+      - ./data:/app/data
