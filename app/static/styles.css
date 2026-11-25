@@ -672,7 +672,6 @@ button, input, textarea, select { font-family: inherit; }
 }
 
 .card-title { margin: 0; font-size: 16px; font-weight: 600; }
-
 .card-desc {
   margin: 0;
   font-size: 14px;
@@ -1741,5 +1740,102 @@ button, input, textarea, select { font-family: inherit; }
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------------- 卡片标题：可点击复制 ---------------- */
+.card-title {
+  cursor: pointer;
+  transition: color .15s ease;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 多选模式下点击标题优先执行选中，不再显示「可复制」的视觉暗示 */
+.card-grid.is-selecting .card-title { cursor: pointer; }
+
+.card-title:hover {
+  color: var(--primary);
+}
+
+.card-grid.is-selecting .card-title:hover {
+  color: inherit;
+}
+
+/* ---------------- 输入框内置清空 / 显示密码按钮 ---------------- */
+.clear-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.clear-wrap > input,
+.clear-wrap > textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 数字框隐藏系统步进按钮，避免与清空按钮重叠 */
+.clear-wrap > input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.clear-wrap > input[type="number"]::-webkit-outer-spin-button,
+.clear-wrap > input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* 文本类给「×」留位置；密码框再给眼睛按钮多留一格 */
+.clear-wrap > input[type="text"],
+.clear-wrap > input[type="email"],
+.clear-wrap > input[type="url"],
+.clear-wrap > input[type="tel"],
+.clear-wrap > input[type="number"] { padding-right: 30px; }
+
+.clear-wrap > input[type="password"] { padding-right: 58px; }
+
+.input-clear,
+.input-eye {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #98a2b3;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .5;
+  transition: opacity .15s ease, color .15s ease, background .15s ease;
+}
+
+.input-clear { right: 7px; }
+.input-eye { right: 28px; }
+
+.clear-wrap.has-value .input-clear { opacity: .95; }
+
+.input-clear:hover,
+.input-eye:hover {
+  background: #eef1f6;
+  color: var(--text);
+  opacity: 1;
+}
+
+/* 多行说明框：按钮贴右上角 */
+.clear-wrap-area > .input-clear { top: 8px; transform: none; }
+.clear-wrap-area > .input-eye { top: 8px; transform: none; }
+
+/* 这些容器是 flex / grid，包装层需要撑满可用空间 */
+.category-add .clear-wrap,
+.color-input .clear-wrap { flex: 1 1 auto; min-width: 0; }
+.guard-row .clear-wrap { flex: 1 1 0; min-width: 0; }
+
+[data-theme="dark"] .input-clear,
+[data-theme="dark"] .input-eye { color: #8b95a5; }
+
+[data-theme="dark"] .input-clear:hover,
+[data-theme="dark"] .input-eye:hover { background: #2b3341; color: var(--text); }
 
 

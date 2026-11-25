@@ -1,8 +1,0 @@
-data/
-__pycache__/
-*.pyc
-.DS_Store
-*.log
-my-docker-hub.zip
-*.zip
-my-docker-hub/

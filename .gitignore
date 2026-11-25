@@ -6,3 +6,4 @@ __pycache__/
 my-docker-hub.zip
 *.zip
 my-docker-hub/
+my-docker-hub*/

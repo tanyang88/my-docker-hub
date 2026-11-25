@@ -209,7 +209,7 @@
       'settings.searchSection': '搜索',
       'settings.searchHighlight': '搜索结果高亮关键词显示',
       'settings.about': '关于',
-      'settings.aboutVersion': '当前版本：1.0.2',
+      'settings.aboutVersion': '当前版本：1.1.0',
       'settings.account': '账号安全',
       'settings.currentPwd': '当前密码',
       'settings.newUsername': '新用户名',
@@ -246,6 +246,11 @@
       'toast.needLogin': '请先登录',
       'toast.iconBig': '图片不能超过 5MB',
       'toast.pageRange': '请输入 1 到 {max} 之间的页码',
+      'toast.titleCopied': '已复制标题：{name}',
+      'toast.copyFailed': '复制失败，请手动选择标题文字',
+      'common.clearInput': '清空',
+      'common.showPassword': '显示密码',
+      'common.hidePassword': '隐藏密码',
       'delete.title': '删除卡片',
       'delete.hint': '「{name}」属于 {n} 个分类：{cats}。请选择要执行的操作。',
       'delete.hintOne': '「{name}」目前只属于「{cat}」，选择「只删除该分类下的卡片」等于删除这张卡片。',
@@ -452,7 +457,7 @@
       'settings.searchSection': 'Search',
       'settings.searchHighlight': 'Highlight matched keywords',
       'settings.about': 'About',
-      'settings.aboutVersion': 'Current version: 1.0.2',
+      'settings.aboutVersion': 'Current version: 1.1.0',
       'settings.account': 'Account security',
       'settings.currentPwd': 'Current password',
       'settings.newUsername': 'New username',
@@ -490,6 +495,11 @@
       'toast.needLogin': 'Please sign in first',
       'toast.iconBig': 'Image must be under 5MB',
       'toast.pageRange': 'Enter a page between 1 and {max}',
+      'toast.titleCopied': 'Title copied: {name}',
+      'toast.copyFailed': 'Copy failed, please select the title text manually',
+      'common.clearInput': 'Clear',
+      'common.showPassword': 'Show password',
+      'common.hidePassword': 'Hide password',
       'delete.title': 'Delete card',
       'delete.hint': '“{name}” belongs to {n} categories: {cats}. Choose an action.',
       'delete.hintOne': '“{name}” only belongs to “{cat}”, so removing that card deletes it.',
@@ -737,6 +747,165 @@
     toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2600);
   }
 
+  // ---------------- 剪贴板 ----------------
+  // 优先 Clipboard API（HTTPS / localhost 可用）；局域网 http 下没有 navigator.clipboard，
+  // 回退到隐藏 textarea + execCommand('copy')，仍然写进系统剪贴板。
+  async function copyText(text) {
+    const value = String(text == null ? '' : text);
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        // 某些环境权限弹窗不返回结果，最多等 1.2 秒就转用兼容方案
+        await Promise.race([
+          navigator.clipboard.writeText(value),
+          new Promise((resolve, reject) => setTimeout(() => reject(new Error('timeout')), 1200)),
+        ]);
+        return true;
+      } catch (err) {
+        /* 落到下面的兼容方案 */
+      }
+    }
+    try {
+      const holder = document.createElement('textarea');
+      holder.value = value;
+      holder.setAttribute('readonly', '');
+      holder.style.position = 'fixed';
+      holder.style.top = '0';
+      holder.style.left = '-9999px';
+      holder.style.opacity = '0';
+      document.body.appendChild(holder);
+      const active = document.activeElement;
+      holder.select();
+      holder.setSelectionRange(0, holder.value.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(holder);
+      // 复制后把焦点还给原来的输入框，避免打断正在编辑的内容
+      if (active && typeof active.focus === 'function') active.focus();
+      return ok;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  async function copyCardTitle(name) {
+    const text = String(name || '').trim();
+    if (!text) return;
+    const ok = await copyText(text);
+    toast(ok ? t('toast.titleCopied', { name: text }) : t('toast.copyFailed'), !ok);
+  }
+
+  // ---------------- 输入框清空 / 密码显示按钮 ----------------
+  // 给文本、密码、数字输入框和多行说明框在右侧内置「×」清空按钮；密码框再加「显示/隐藏密码」。
+  const ICON_CLEAR = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>';
+  const ICON_EYE_OPEN = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="2.6"></circle></svg>';
+  const ICON_EYE_OFF = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"></path><path d="M4 4l16 16"></path></svg>';
+
+  function shouldDecorate(input) {
+    if (!input || input.dataset.cleared === '1') return false;
+    if (input.closest('.clear-wrap')) return false;
+    if (input.type === 'file' || input.type === 'checkbox' || input.type === 'radio' || input.type === 'color') return false;
+    if (input.type === 'search') return false; // 搜索框有自带的清除按钮
+    if (input.closest('.search-box') || input.closest('.page-jump')) return false; // 分页跳转框保持紧凑
+    if (input.tagName !== 'INPUT' && input.tagName !== 'TEXTAREA') return false;
+    if (input.tagName === 'INPUT' && input.type && ['text', 'password', 'number', 'email', 'url', 'tel'].indexOf(input.type) === -1) return false;
+    return true;
+  }
+
+  function decorateField(input) {
+    if (!shouldDecorate(input)) return;
+    const isArea = input.tagName === 'TEXTAREA';
+    const isPassword = input.type === 'password';
+    const wrap = document.createElement('div');
+    wrap.className = 'clear-wrap' + (isArea ? ' clear-wrap-area' : '') + (isPassword ? ' with-eye' : '');
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    input.dataset.cleared = '1';
+
+    // 右侧内边距：给按钮留位置，避免文字被压住
+    if (isArea) {
+      input.style.paddingRight = '32px';
+    } else if (isPassword) {
+      input.style.paddingRight = '58px';
+    } else {
+      const current = parseFloat(getComputedStyle(input).paddingRight) || 12;
+      input.style.paddingRight = Math.max(current + 18, 30) + 'px';
+    }
+
+    let eye = null;
+    if (isPassword) {
+      eye = document.createElement('button');
+      eye.type = 'button';
+      eye.className = 'input-eye';
+      eye.tabIndex = -1;
+      eye.innerHTML = ICON_EYE_OPEN;
+      eye.title = t('common.showPassword');
+      eye.setAttribute('aria-label', t('common.showPassword'));
+      // 按下时不让输入框失焦
+      eye.addEventListener('mousedown', (e) => e.preventDefault());
+      eye.addEventListener('click', () => {
+        const toText = input.type === 'password';
+        input.type = toText ? 'text' : 'password';
+        eye.innerHTML = toText ? ICON_EYE_OFF : ICON_EYE_OPEN;
+        const label = toText ? t('common.hidePassword') : t('common.showPassword');
+        eye.title = label;
+        eye.setAttribute('aria-label', label);
+        input.focus();
+        try {
+          input.setSelectionRange(input.value.length, input.value.length);
+        } catch (err) {
+          /* 部分输入类型不支持 setSelectionRange */
+        }
+      });
+      wrap.appendChild(eye);
+    }
+
+    const clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'input-clear';
+    clear.tabIndex = -1;
+    clear.innerHTML = ICON_CLEAR;
+    clear.title = t('common.clearInput');
+    clear.setAttribute('aria-label', t('common.clearInput'));
+    clear.addEventListener('mousedown', (e) => e.preventDefault());
+    clear.addEventListener('click', () => {
+      input.value = '';
+      wrap.classList.remove('has-value');
+      input.focus();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    wrap.appendChild(clear);
+
+    const sync = () => wrap.classList.toggle('has-value', !!input.value);
+    input.addEventListener('input', sync);
+    input.addEventListener('change', sync);
+    sync();
+  }
+
+  function decorateFields(root) {
+    const scope = root || document;
+    const list = scope.querySelectorAll('input, textarea');
+    for (let i = 0; i < list.length; i += 1) decorateField(list[i]);
+  }
+
+  // 语言切换后刷新按钮提示文字
+  function refreshDecoratedLabels() {
+    const wraps = document.querySelectorAll('.clear-wrap');
+    for (let i = 0; i < wraps.length; i += 1) {
+      const clear = wraps[i].querySelector('.input-clear');
+      if (clear) {
+        clear.title = t('common.clearInput');
+        clear.setAttribute('aria-label', t('common.clearInput'));
+      }
+      const eye = wraps[i].querySelector('.input-eye');
+      const input = wraps[i].querySelector('input');
+      if (eye && input) {
+        const label = input.type === 'password' ? t('common.showPassword') : t('common.hidePassword');
+        eye.title = label;
+        eye.setAttribute('aria-label', label);
+      }
+    }
+  }
+
   // ---------------- 行为埋点（热门排序的数据来源） ----------------
   // 只上报最小信息：事件类型、Docker应用 id、链接标识、关键词；3 秒内相同事件去重。
   const trackRecent = new Map();
@@ -796,6 +965,7 @@
     $$('[data-i18n-ph]').forEach((node) => {
       node.placeholder = t(node.dataset.i18nPh);
     });
+    refreshDecoratedLabels();
   }
 
   let systemThemeQuery = null;
@@ -1472,6 +1642,7 @@
   function updateBulkUI() {
     const loggedIn = !!state.user;
     els.btnSelectMode.hidden = !loggedIn;
+    els.cardGrid.classList.toggle('is-selecting', state.selectMode && loggedIn);
     if (!loggedIn && state.selectMode) {
       state.selectMode = false;
       state.selected.clear();
@@ -1802,6 +1973,7 @@
           <button type="button" class="btn btn-small btn-ghost rm" data-rm="${i}">${escapeHtml(t('form.rm'))}</button>
         </div>`)
       .join('');
+    decorateFields(els.downloadRows);
   }
 
   function syncDownloadOrder() {
@@ -1847,6 +2019,7 @@
           <button type="button" class="btn btn-small btn-ghost rm" data-erm="${i}">${escapeHtml(t('form.rm'))}</button>
         </div>`)
       .join('');
+    decorateFields(els.extraLinkRows);
   }
 
   function syncExtraOrder() {
@@ -2291,6 +2464,16 @@
       if (card) toggleSelect(card.dataset.id);
       return;
     }
+    // 非多选模式下，单击卡片标题 = 复制标题到剪贴板
+    const titleEl = event.target.closest('.card-title');
+    if (titleEl) {
+      const titleCard = titleEl.closest('.card');
+      const titleItem = titleCard
+        ? state.items.find((i) => String(i.id) === String(titleCard.dataset.id))
+        : null;
+      await copyCardTitle(titleItem ? titleItem.name : titleEl.textContent);
+      return;
+    }
     const pinBtn = event.target.closest('[data-pin]');
     if (pinBtn) {
       const item = state.items.find((i) => String(i.id) === String(pinBtn.dataset.pin));
@@ -2672,6 +2855,7 @@
 
   // ---------------- 启动 ----------------
   (async function boot() {
+    decorateFields(document);
     try {
       await loadSettings();
     } catch (err) {
