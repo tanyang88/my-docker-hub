@@ -318,6 +318,19 @@ docker compose exec -e RESET_PASSWORD=新密码 my-docker-hub python app/reset_p
       </section>
 
       <section class="settings-section">
+        <h4 data-i18n="settings.loginGuard">登录防护</h4>
+        <p class="hint-text" data-i18n="settings.loginGuardHint">连续登录失败达到设定次数后，按设定时长锁定该账户；填 0 表示不限制。</p>
+        <div class="guard-row">
+          <input type="number" id="settingLoginFails" min="0" max="100" step="1" placeholder="失败次" data-i18n-ph="settings.loginFailsPh">
+          <input type="number" id="settingLoginLock" min="0" max="1440" step="1" placeholder="锁定时" data-i18n-ph="settings.loginLockPh">
+          <button type="button" class="btn btn-small" id="saveLoginGuard" data-i18n="settings.loginGuardSave">保存</button>
+        </div>
+        <div class="section-actions">
+          <span class="form-error" id="loginGuardError"></span>
+        </div>
+      </section>
+
+      <section class="settings-section">
         <h4 data-i18n="settings.backup">备份与恢复</h4>
         <p class="hint-text" data-i18n="settings.backupHint">备份包含数据库和上传的图标；恢复会覆盖当前全部数据，请先下载备份。</p>
         <div class="section-actions">
@@ -334,7 +347,7 @@ docker compose exec -e RESET_PASSWORD=新密码 my-docker-hub python app/reset_p
 
       <section class="settings-section">
         <h4 data-i18n="settings.about">关于</h4>
-        <p class="about-version" data-i18n="settings.aboutVersion">当前版本：1.0</p>
+        <p class="about-version" data-i18n="settings.aboutVersion">当前版本：1.0.1</p>
       </section>
 
     </div>

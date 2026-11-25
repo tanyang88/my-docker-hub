@@ -57,6 +57,8 @@ DEFAULT_SETTINGS = {
     "hot_window": "7",  # 热门统计时间窗：7 / 30 / off（关闭热门排序）
     "hot_board": "1",  # 是否在顶部操作栏显示热门榜入口：1 / 0
     "search_highlight": "1",  # 搜索结果是否高亮关键词：1 / 0
+    "login_max_fails": "0",  # 登录防护：连续失败多少次后锁定，0 表示不限制
+    "login_lock_minutes": "0",  # 登录防护：锁定时长（分钟），0 表示不限制
 }
 
 CONTENT_TYPES = {
@@ -117,6 +119,10 @@ LICENSE_KEYS = ("free", "subscription", "onetime", "metered", "freemium")
 
 class AuthError(Exception):
     """未登录或登录失效"""
+
+
+class LockError(Exception):
+    """账户因连续登录失败被临时锁定"""
 
 
 # ----------------------------------------------------------------------------
@@ -461,6 +467,13 @@ def init_db():
                 expires_at TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
             );
+
+            CREATE TABLE IF NOT EXISTS login_guard (
+                username TEXT PRIMARY KEY,
+                fails INTEGER NOT NULL DEFAULT 0,
+                locked_until TEXT NOT NULL DEFAULT '',
+                updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+            );
             """
         )
 
@@ -696,6 +709,81 @@ def find_user(username):
     conn = connect()
     try:
         return conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    finally:
+        conn.close()
+
+
+# ----------------------------------------------------------------------------
+# 登录防护：连续失败达到次数后按设定时长锁定账户（0 表示不限制）
+# ----------------------------------------------------------------------------
+def login_guard_config():
+    """从设置里读取出防护参数，返回 (最大失败次数, 锁定时长分钟)；任一为 0 即视为不启用。"""
+    settings_map = get_settings()
+
+    def to_int(key):
+        try:
+            return max(0, int(str(settings_map.get(key) or "0").strip() or 0))
+        except (TypeError, ValueError):
+            return 0
+
+    max_fails = to_int("login_max_fails")
+    lock_minutes = to_int("login_lock_minutes")
+    if max_fails <= 0 or lock_minutes <= 0:
+        return 0, 0
+    return max_fails, lock_minutes
+
+
+def login_lock_remaining(username):
+    """账户仍处于锁定期时返回剩余分钟数（至少 1），否则返回 0。"""
+    conn = connect()
+    try:
+        row = conn.execute(
+            "SELECT locked_until FROM login_guard WHERE username = ?", (username,)
+        ).fetchone()
+        if not row or not (row["locked_until"] or "").strip():
+            return 0
+        try:
+            until = datetime.strptime(row["locked_until"], "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return 0
+        remain = (until - datetime.now()).total_seconds()
+        if remain <= 0:
+            return 0
+        return max(1, int(math.ceil(remain / 60.0)))
+    finally:
+        conn.close()
+
+
+def bump_login_failure(username, max_fails, lock_minutes):
+    """记录一次失败；达到上限时写入锁定到期时间。"""
+    conn = connect()
+    try:
+        row = conn.execute(
+            "SELECT fails FROM login_guard WHERE username = ?", (username,)
+        ).fetchone()
+        fails = (int(row["fails"]) + 1) if row else 1
+        locked_until = ""
+        if max_fails > 0 and fails >= max_fails:
+            locked_until = (datetime.now() + timedelta(minutes=lock_minutes)).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        conn.execute(
+            "INSERT INTO login_guard (username, fails, locked_until) VALUES (?, ?, ?) "
+            "ON CONFLICT(username) DO UPDATE SET fails = excluded.fails, "
+            "locked_until = excluded.locked_until, updated_at = datetime('now', 'localtime')",
+            (username, fails, locked_until),
+        )
+        conn.commit()
+        return fails, bool(locked_until)
+    finally:
+        conn.close()
+
+
+def clear_login_failure(username):
+    conn = connect()
+    try:
+        conn.execute("DELETE FROM login_guard WHERE username = ?", (username,))
+        conn.commit()
     finally:
         conn.close()
 
@@ -1546,7 +1634,7 @@ def restore_backup(raw):
 # HTTP
 # ----------------------------------------------------------------------------
 class Handler(BaseHTTPRequestHandler):
-    server_version = "MyDockerHub/1.0"
+    server_version = "MyDockerHub/1.0.1"
     protocol_version = "HTTP/1.1"
 
     # --- 基础工具 -----------------------------------------------------------
@@ -1689,9 +1777,25 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/auth/login":
                 body = self.read_body()
                 username = (body.get("username") or "").strip()
+                max_fails, lock_minutes = login_guard_config()
+                guard_on = max_fails > 0 and lock_minutes > 0
+                if guard_on:
+                    remain = login_lock_remaining(username)
+                    if remain:
+                        raise LockError(
+                            "登录失败次数过多，账户已锁定，请在 %d 分钟后再试" % remain
+                        )
                 user = find_user(username)
                 if not user or not verify_password(body.get("password") or "", user["password_hash"]):
+                    if guard_on:
+                        _, locked = bump_login_failure(username, max_fails, lock_minutes)
+                        if locked:
+                            raise LockError(
+                                "登录失败次数过多，账户已锁定，请在 %d 分钟后再试" % lock_minutes
+                            )
                     raise ValueError("用户名或密码错误")
+                if guard_on:
+                    clear_login_failure(username)
                 token, hours = create_session(user["id"], bool(body.get("remember")))
                 return self.set_session_cookie(token, hours)
             if path == "/api/auth/logout":
@@ -1727,6 +1831,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_error_json("接口不存在", 404)
         except AuthError as exc:
             return self.send_error_json(str(exc), 401)
+        except LockError as exc:
+            return self.send_error_json(str(exc), 429)
         except ValueError as exc:
             return self.send_error_json(str(exc), 400)
         except LookupError as exc:

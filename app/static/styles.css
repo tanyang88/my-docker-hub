@@ -937,7 +937,22 @@ button, input, textarea, select { font-family: inherit; }
 .logo-preview img { max-width: 66px; max-height: 66px; object-fit: contain; }
 
 .logo-fields { flex: 1; min-width: 0; }
-.logo-actions { display: flex; gap: 8px; margin-top: 8px; }
+.logo-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+
+/* 「上传本地图片」是 label，会被 .form-item label 的 display:block / margin / 字体规则影响，
+   这里统一样式与「清除」按钮保持同高同宽的外观 */
+.logo-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  margin-bottom: 0;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--text);
+}
 
 .file-btn { position: relative; }
 .file-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -1362,6 +1377,31 @@ button, input, textarea, select { font-family: inherit; }
   flex-wrap: wrap;
 }
 
+/* 登录防护：失败次 / 锁定时 / 保存 */
+.guard-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.guard-row input {
+  width: 92px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  font-size: 13px;
+  color: var(--text);
+  background: #fbfcfe;
+  outline: none;
+  transition: border-color .14s ease, background .14s ease;
+}
+
+.guard-row input:focus { border-color: var(--primary); background: #fff; }
+.guard-row input::-webkit-outer-spin-button,
+.guard-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.guard-row input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
 .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .hint-text {
@@ -1431,6 +1471,7 @@ button, input, textarea, select { font-family: inherit; }
 [data-theme="dark"] .category-add input,
 [data-theme="dark"] .confirm-input input,
 [data-theme="dark"] .logo-preview,
+[data-theme="dark"] .guard-row input,
 [data-theme="dark"] .modal {
   background: #1f2632;
   color: var(--text);

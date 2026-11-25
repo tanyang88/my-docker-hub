@@ -7,7 +7,7 @@
 - 项目名称：**Docker应用库**（My Docker Hub）
 - 默认站点名称 / 网站标题：**Docker应用库**
 - 默认站点副标题：**专属于你的DockerHub应用收藏**
-- 版本：**1.0**
+- 版本：**1.0.1**
 
 ## 快速开始
 
@@ -56,7 +56,7 @@ Windows 上双击 `start.bat` 即可在后台启动，`stop.bat` 停止。
 
 ### 登录、设置与数据
 - 右上角「登录」，支持记住密码（30 天，否则 12 小时）与忘记密码引导。未登录时所有写操作入口隐藏，接口返回 401。
-- 「设置」包含：站点名称 / 副标题 / 网站标题 / 网站图标（上传后左上角图标与标签页图标一起更新）、热门统计（时间窗、是否显示热门榜）、搜索高亮开关、账号安全（改用户名 / 密码）、备份与恢复、关于（当前版本 1.0）。
+- 「设置」包含：站点名称 / 副标题 / 网站标题 / 网站图标（上传后左上角图标与标签页图标一起更新）、热门统计（时间窗、是否显示热门榜）、搜索高亮开关、账号安全（改用户名 / 密码）、登录防护（连续登录失败多少次后锁定、锁定时长，填 0 表示不限制）、备份与恢复、关于（当前版本 1.0.1）。
 - 主题：顶栏「明亮 / 跟随系统 / 暗黑」三档，记住在当前浏览器，默认跟随系统。
 - 数据：`data/app.db` 存全部内容，`data/uploads/` 存上传图标，容器重建不丢。
 
@@ -163,9 +163,9 @@ docker run -d --name my-docker-hub -p 8080:8080 -v "D:\Docker\my-docker-hub\data
 
 ```bash
 docker login
-docker build -t yourname/my-docker-hub:latest -t yourname/my-docker-hub:1.0 .
+docker build -t yourname/my-docker-hub:latest -t yourname/my-docker-hub:1.0.1 .
 docker push yourname/my-docker-hub:latest
-docker push yourname/my-docker-hub:1.0
+docker push yourname/my-docker-hub:1.0.1
 ```
 
 之后任何装了 Docker 的机器都能直接拉取，不需要源码：
@@ -220,6 +220,11 @@ python app/server.py
 | 热门统计时间窗 | `hot_window` | `7`（默认）/ `30` / `off` |
 | 热门榜入口 | `hot_board` | `1`（默认显示）/ `0`（隐藏） |
 | 搜索高亮 | `search_highlight` | `1`（默认）/ `0` |
+| 登录失败上限 | `login_max_fails` | 连续失败多少次后锁定账户，`0`（默认，不限制）/ 正整数 |
+| 登录锁定时长 | `login_lock_minutes` | 锁定多少分钟，`0`（默认，不限制）/ 正整数；两项任一为 `0` 即不启用 |
+
+登录防护的行为：同一用户名连续密码错误达到上限时，立即返回「账户已锁定，请在 N 分钟后再试」（HTTP 429），锁定期内即使密码正确也会被拒绝；登录成功即清零失败计数。锁定记录存在 `login_guard` 表，忘记密码仍可用 `reset_password.py` 重置。
+
 
 ## 数据备份与迁移
 
@@ -248,7 +253,7 @@ python app/server.py
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| POST | `/api/auth/login` | 登录 `{ "username", "password", "remember" }`，成功后下发 `hub_session` Cookie |
+| POST | `/api/auth/login` | 登录 `{ "username", "password", "remember" }`，成功后下发 `hub_session` Cookie；触发登录防护时返回 429 与锁定提示 |
 | POST | `/api/auth/logout` | 退出登录 |
 | PUT | `/api/auth/account` | 改用户名 / 密码 `{ "current_password", "username", "new_password" }` |
 | POST | `/api/categories` | 新建分类 `{ "name": "基础设施" }` |
@@ -279,6 +284,11 @@ python app/server.py
 - **登录多久失效**：勾选记住密码 30 天，否则 12 小时；改密码、恢复备份会让所有会话立即失效。
 
 ## 版本说明
+
+### 1.0.1
+- 新增「设置 → 登录防护」：连续登录失败达到设定次数后按设定时长锁定账户，填 0 表示不限制；触发时登录接口返回 429 与剩余锁定时间。
+- 修复「添加 Docker 应用」弹窗里「图标」区域中「上传本地图片」与「清除」两个按钮高度不一致的问题，两者现在等高对齐。
+- 设置 → 关于显示「当前版本：1.0.1」。
 
 ### 1.0
 - 首个版本：站点名称与网站标题默认「Docker应用库」，副标题「专属于你的DockerHub应用收藏」，设置 → 关于显示「当前版本：1.0」。

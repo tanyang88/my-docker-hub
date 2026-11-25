@@ -209,12 +209,19 @@
       'settings.searchSection': '搜索',
       'settings.searchHighlight': '搜索结果高亮关键词显示',
       'settings.about': '关于',
-      'settings.aboutVersion': '当前版本：1.0',
+      'settings.aboutVersion': '当前版本：1.0.1',
       'settings.account': '账号安全',
       'settings.currentPwd': '当前密码',
       'settings.newUsername': '新用户名',
       'settings.newPwd': '新密码（留空则不修改）',
       'settings.saveAccount': '保存账号设置',
+      'settings.loginGuard': '登录防护',
+      'settings.loginGuardHint': '连续登录失败达到设定次数后，按设定时长锁定该账户；填 0 表示不限制。',
+      'settings.loginFailsPh': '失败次',
+      'settings.loginLockPh': '锁定时（分钟）',
+      'settings.loginGuardSave': '保存',
+      'settings.loginGuardSaved': '登录防护设置已保存',
+      'settings.loginGuardInvalid': '请输入 0 或正整数',
       'settings.backup': '备份与恢复',
       'settings.backupHint': '备份包含数据库和上传的图标；恢复会覆盖当前全部数据，请先下载备份。',
       'settings.download': '下载备份',
@@ -445,12 +452,19 @@
       'settings.searchSection': 'Search',
       'settings.searchHighlight': 'Highlight matched keywords',
       'settings.about': 'About',
-      'settings.aboutVersion': 'Current version: 1.0',
+      'settings.aboutVersion': 'Current version: 1.0.1',
       'settings.account': 'Account security',
       'settings.currentPwd': 'Current password',
       'settings.newUsername': 'New username',
       'settings.newPwd': 'New password (leave blank to keep)',
       'settings.saveAccount': 'Save account',
+      'settings.loginGuard': 'Login protection',
+      'settings.loginGuardHint': 'Locks the account for the configured duration after too many consecutive failed logins; set 0 for no limit.',
+      'settings.loginFailsPh': 'Failed attempts',
+      'settings.loginLockPh': 'Lock (minutes)',
+      'settings.loginGuardSave': 'Save',
+      'settings.loginGuardSaved': 'Login protection settings saved',
+      'settings.loginGuardInvalid': 'Enter 0 or a positive integer',
       'settings.backup': 'Backup & restore',
       'settings.backupHint': 'Backup includes the database and icons. Restoring overwrites all data, download a backup first.',
       'settings.download': 'Download backup',
@@ -890,6 +904,8 @@
       : (settings.hot_window === '30' ? '30' : '7');
     $('#settingSearchHighlight').checked = settings.search_highlight !== '0';
     $('#settingHotBoard').checked = settings.hot_board !== '0';
+    $('#settingLoginFails').value = settings.login_max_fails || '0';
+    $('#settingLoginLock').value = settings.login_lock_minutes || '0';
     state.siteIconDraft = settings.site_icon || '';
     updateSiteIconPreview();
   }
@@ -963,6 +979,7 @@
     $('#settingsError').textContent = '';
     $('#accountError').textContent = '';
     $('#backupError').textContent = '';
+    $('#loginGuardError').textContent = '';
     $('#accCurrent').value = '';
     $('#accUsername').value = state.user;
     $('#accNewPass').value = '';
@@ -979,6 +996,8 @@
       hot_window: $('#settingHotWindow').value,
       hot_board: $('#settingHotBoard').checked ? '1' : '0',
       search_highlight: $('#settingSearchHighlight').checked ? '1' : '0',
+      login_max_fails: String(normalizeGuardNumber($('#settingLoginFails').value)),
+      login_lock_minutes: String(normalizeGuardNumber($('#settingLoginLock').value)),
     };
     if (!payload.site_name) {
       $('#settingsError').textContent = t('settings.siteName');
@@ -996,6 +1015,44 @@
       toast(t('toast.settingsSaved'));
     } catch (err) {
       $('#settingsError').textContent = err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ---------------- 登录防护 ----------------
+  // 只接受 0 或正整数（0 表示不限制），空值按 0 处理
+  function normalizeGuardNumber(raw) {
+    const text = String(raw == null ? '' : raw).trim();
+    if (!text) return 0;
+    if (!/^\d+$/.test(text)) return NaN;
+    return Math.min(1440, parseInt(text, 10));
+  }
+
+  async function saveLoginGuard() {
+    const maxFails = normalizeGuardNumber($('#settingLoginFails').value);
+    const lockMinutes = normalizeGuardNumber($('#settingLoginLock').value);
+    const err = $('#loginGuardError');
+    err.textContent = '';
+    if (Number.isNaN(maxFails) || Number.isNaN(lockMinutes)) {
+      err.textContent = t('settings.loginGuardInvalid');
+      return;
+    }
+    const btn = $('#saveLoginGuard');
+    btn.disabled = true;
+    try {
+      const saved = await api('/api/settings', {
+        method: 'PUT',
+        body: JSON.stringify({
+          login_max_fails: String(maxFails),
+          login_lock_minutes: String(lockMinutes),
+        }),
+      });
+      $('#settingLoginFails').value = saved.login_max_fails || '0';
+      $('#settingLoginLock').value = saved.login_lock_minutes || '0';
+      toast(t('settings.loginGuardSaved'));
+    } catch (error) {
+      err.textContent = error.message;
     } finally {
       btn.disabled = false;
     }
@@ -2351,6 +2408,7 @@
   $('#cancelSettings').addEventListener('click', () => { els.settingsModal.hidden = true; });
   bindMaskClose(els.settingsModal, () => { els.settingsModal.hidden = true; });
   $('#saveSettings').addEventListener('click', saveSettings);
+  $('#saveLoginGuard').addEventListener('click', saveLoginGuard);
   els.btnHotPanel.addEventListener('click', openHotPanel);
   $('#closeHot').addEventListener('click', () => { els.hotModal.hidden = true; });
   $('#closeHotFoot').addEventListener('click', () => { els.hotModal.hidden = true; });
