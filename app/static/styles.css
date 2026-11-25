@@ -1386,7 +1386,9 @@ button, input, textarea, select { font-family: inherit; }
 }
 
 .guard-row input {
-  width: 92px;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
   padding: 8px 10px;
   border: 1px solid var(--border-strong);
   border-radius: 9px;
@@ -1398,6 +1400,8 @@ button, input, textarea, select { font-family: inherit; }
 }
 
 .guard-row input:focus { border-color: var(--primary); background: #fff; }
+/* 保存按钮贴到最右侧，输入框与它之间仍保持 8px 间距 */
+.guard-row .btn { flex: 0 0 auto; margin-left: auto; }
 .guard-row input::-webkit-outer-spin-button,
 .guard-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .guard-row input[type="number"] { -moz-appearance: textfield; appearance: textfield; }

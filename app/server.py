@@ -1634,7 +1634,7 @@ def restore_backup(raw):
 # HTTP
 # ----------------------------------------------------------------------------
 class Handler(BaseHTTPRequestHandler):
-    server_version = "MyDockerHub/1.0.1"
+    server_version = "MyDockerHub/1.0.2"
     protocol_version = "HTTP/1.1"
 
     # --- 基础工具 -----------------------------------------------------------
