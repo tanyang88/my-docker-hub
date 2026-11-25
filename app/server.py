@@ -1083,6 +1083,16 @@ def search_relevance_clause(q):
     return sql, params
 
 
+def list_software_names():
+    """返回全库所有应用的 id 与名称，供前端做重名检查（不受分类、搜索、分页影响）。"""
+    conn = connect()
+    try:
+        rows = conn.execute("SELECT id, name FROM software ORDER BY id ASC").fetchall()
+        return {"items": [{"id": r["id"], "name": r["name"]} for r in rows]}
+    finally:
+        conn.close()
+
+
 def list_software(query):
     try:
         page = max(1, int(query.get("page", ["1"])[0]))
@@ -1634,7 +1644,7 @@ def restore_backup(raw):
 # HTTP
 # ----------------------------------------------------------------------------
 class Handler(BaseHTTPRequestHandler):
-    server_version = "MyDockerHub/1.1.0"
+    server_version = "MyDockerHub/1.2.0"
     protocol_version = "HTTP/1.1"
 
     # --- 基础工具 -----------------------------------------------------------
@@ -1743,6 +1753,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"status": "ok"})
             if path == "/api/categories":
                 return self.send_json(list_categories())
+            if path == "/api/software/names":
+                return self.send_json(list_software_names())
             if path == "/api/software":
                 return self.send_json(list_software(urllib.parse.parse_qs(parsed.query)))
             if path == "/api/hot":

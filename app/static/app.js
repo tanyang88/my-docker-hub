@@ -209,7 +209,7 @@
       'settings.searchSection': '搜索',
       'settings.searchHighlight': '搜索结果高亮关键词显示',
       'settings.about': '关于',
-      'settings.aboutVersion': '当前版本：1.1.0',
+      'settings.aboutVersion': '当前版本：1.2.0',
       'settings.account': '账号安全',
       'settings.currentPwd': '当前密码',
       'settings.newUsername': '新用户名',
@@ -263,6 +263,9 @@
       'confirm.deleteCategory': '确定删除分类「{name}」吗？',
       'confirm.deleteCategoryItems': '分类「{name}」下有 {count} 张卡片。删除后，同时属于其他分类的卡片只从本分类移除；只属于本分类的卡片会转到「未分类」。确定继续吗？',
       'confirm.restore': '恢复备份会覆盖当前全部数据，确定继续吗？',
+      'confirm.dupTitle': '已有同名Docker应用',
+      'confirm.dupOk': '确认',
+      'confirm.dupText': '已存在同名Docker应用「{name}」。点击「确认」继续添加，或点击「取消」返回修改。',
     },
     en: {
       'header.subtitle': 'Organize your Docker app collection by category',
@@ -457,7 +460,7 @@
       'settings.searchSection': 'Search',
       'settings.searchHighlight': 'Highlight matched keywords',
       'settings.about': 'About',
-      'settings.aboutVersion': 'Current version: 1.1.0',
+      'settings.aboutVersion': 'Current version: 1.2.0',
       'settings.account': 'Account security',
       'settings.currentPwd': 'Current password',
       'settings.newUsername': 'New username',
@@ -512,6 +515,9 @@
       'confirm.deleteCategory': 'Delete category “{name}”?',
       'confirm.deleteCategoryItems': 'Category “{name}” has {count} cards. Cards that also belong to other categories are only removed here; the rest move to Uncategorized. Continue?',
       'confirm.restore': 'Restoring overwrites all current data. Continue?',
+      'confirm.dupTitle': 'Duplicate Docker app',
+      'confirm.dupOk': 'OK',
+      'confirm.dupText': 'A Docker app named “{name}” already exists. Click “OK” to add it anyway, or “Cancel” to go back and edit.',
     },
   };
 
@@ -1602,7 +1608,7 @@
           <div>
             <div class="card-title-row">
               <h3 class="card-title">${nameHtml}</h3>
-              ${(item.category_names || []).length && state.activeCategory === 'all'
+              ${(item.category_names || []).length && state.activeCategory !== 'uncategorized'
                 ? `<span class="card-cats">${(item.category_names || []).map((n) => `<span class="cat-tag">${escapeHtml(n)}</span>`).join('')}</span>`
                 : ''}
             </div>
@@ -2115,6 +2121,46 @@
     });
   }
 
+  // 重名判定口径：忽略首尾空格与英文大小写
+  function nameKey(value) {
+    return String(value || '').trim().toLocaleLowerCase();
+  }
+
+  // 按名称查全库（不受当前分类、搜索词和分页影响）
+  async function findDuplicateName(name) {
+    try {
+      const data = await api('/api/software/names');
+      const key = nameKey(name);
+      const hit = (data.items || []).find((row) => nameKey(row.name) === key);
+      return hit || null;
+    } catch (err) {
+      return null;  // 查询失败不阻塞保存，交给后端兜底
+    }
+  }
+
+  async function performSave(body) {
+    const btn = $('#saveSoftware');
+    btn.disabled = true;
+    btn.textContent = t('form.saving');
+    try {
+      if (state.editingId) {
+        await api(`/api/software/${state.editingId}`, { method: 'PUT', body: JSON.stringify(body) });
+        toast(t('toast.saved'));
+      } else {
+        await api('/api/software', { method: 'POST', body: JSON.stringify(body) });
+        state.page = 1;
+        toast(t('toast.added'));
+      }
+      closeModal();
+      await refreshAll();
+    } catch (err) {
+      els.formError.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = t('form.save');
+    }
+  }
+
   async function submitSoftware(event) {
     event.preventDefault();
     els.formError.textContent = '';
@@ -2153,26 +2199,23 @@
       body.licenses.push(cb.value);
     });
 
-    const btn = $('#saveSoftware');
-    btn.disabled = true;
-    btn.textContent = t('form.saving');
-    try {
-      if (state.editingId) {
-        await api(`/api/software/${state.editingId}`, { method: 'PUT', body: JSON.stringify(body) });
-        toast(t('toast.saved'));
-      } else {
-        await api('/api/software', { method: 'POST', body: JSON.stringify(body) });
-        state.page = 1;
-        toast(t('toast.added'));
+    // 新增时先查全库重名；编辑原条目不改名，不触发提醒
+    if (!state.editingId) {
+      const dup = await findDuplicateName(name);
+      if (dup) {
+        askConfirm({
+          title: t('confirm.dupTitle'),
+          text: t('confirm.dupText', { name: name }),
+          okText: t('confirm.dupOk'),
+          tone: 'primary',
+          onOk: () => performSave(body),
+          // 弹窗自带的「取消」只关闭提醒，添加窗口与已填内容保持原样
+        });
+        return;
       }
-      closeModal();
-      await refreshAll();
-    } catch (err) {
-      els.formError.textContent = err.message;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = t('form.save');
     }
+
+    await performSave(body);
   }
 
   let deletingItem = null;
