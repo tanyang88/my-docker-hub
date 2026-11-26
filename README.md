@@ -7,7 +7,7 @@
 - 项目名称：**Docker应用库**（My Docker Hub）
 - 默认站点名称 / 网站标题：**Docker应用库**
 - 默认站点副标题：**专属于你的DockerHub应用收藏**
-- 版本：**1.2.0**
+- 版本：**1.3.0**
 
 ## 快速开始
 
@@ -165,9 +165,9 @@ docker run -d --name my-docker-hub -p 8080:8080 -v "D:\Docker\my-docker-hub\data
 
 ```bash
 docker login
-docker build -t yourname/my-docker-hub:latest -t yourname/my-docker-hub:1.2.0 .
+docker build -t yourname/my-docker-hub:latest -t yourname/my-docker-hub:1.3.0 .
 docker push yourname/my-docker-hub:latest
-docker push yourname/my-docker-hub:1.2.0
+docker push yourname/my-docker-hub:1.3.0
 ```
 
 之后任何装了 Docker 的机器都能直接拉取，不需要源码：
@@ -286,6 +286,11 @@ python app/server.py
 - **登录多久失效**：勾选记住密码 30 天，否则 12 小时；改密码、恢复备份会让所有会话立即失效。
 
 ## 版本说明
+
+### 1.3.0
+- 卡片区右侧的页面空白处、紧邻卡片滚动条新增向上的「回到顶部」和向下的「滑到底部」两个按钮，不占用卡片宽度；点击后平滑滚动到卡片区顶部或底部。
+- 没有可滚动内容时按钮自动隐藏，到达顶部或底部时对应按钮自动置灰；手机端及没有足够右侧空白的窄窗口会自动隐藏，避免压住滚动条。
+- 设置 → 关于显示「当前版本：1.3.0」。
 
 ### 1.2.0
 - 新增添加应用时的重名提醒：名称与库里已有条目重复（忽略首尾空格和英文大小写）时，保存前弹出「已有同名Docker应用」窗口；「确认」继续添加，「取消」返回添加窗口且已填内容完整保留。查重扫全库，不受分类、搜索词、分页影响；编辑已有条目不触发。
