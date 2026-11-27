@@ -110,6 +110,7 @@
       'empty.search': '没有匹配的Docker应用，换个关键字试试。',
       'empty.add': '＋ 添加Docker应用',
       'card.edit': '编辑',
+      'card.share': '分享',
       'card.pin': '置顶',
       'card.unpin': '取消置顶',
       'card.badgePin': '置顶',
@@ -173,6 +174,35 @@
       'form.errorName': '请填写Docker应用名称',
       'form.errorCategory': '请先创建并选择一个分类',
       'form.noCategories': '还没有分类，保存后这张卡片会归到「未分类」',
+      'import.button': '导入信息',
+      'import.title': '导入Docker应用信息',
+      'import.hint': '粘贴包含 Docker 应用名称、简介、官网、GitHub、平台、授权等信息的文字，系统会按规则自动识别并填入表单。没有的字段可以留空。',
+      'import.sampleTitle': '示例文档 / AI 提示词',
+      'import.copy': '复制',
+      'import.copied': '已复制',
+      'import.copyFailed': '复制失败，请手动选择文本',
+      'import.sample': "请帮我收集这些 Docker 应用的信息，并从应用资料中提取信息，且严格按以下markdown格式输出，不要添加解释，每个应用单独一段输出：\n```text\nDocker应用名称：\n简介：\n官方网站：\nGitHub：\n版本更新：\n官方文档：\n图标：\n支持系统：\n授权方式：\n下载地址：名称 | 链接\n其他链接：名称 | 链接\n卡片背景色：\n```\n填写说明：\n- Docker应用名称为文字内容，只写应用的名称\n- 简介为文字内容，写应用的简介信息\n- 官方网站为链接URL，写应用的官方网站地址\n- GitHub为链接URL，写应用在GitHub网站的项目地址（仓库地址）\n- 版本更新为链接URL，写与应用版本更新有关的网页地址\n- 官方文档为链接URL，写与应用文档有关的网页地址，如果没有文档，可以用帮助页面或FAQ替代\n- 图标为链接URL，写应用图标文件的链接，找不到可以留空\n- 支持系统可写 Windows / Mac / Linux / Android / iOS / HarmonyOS\n- 授权方式可写 免费 / 订阅制 / 一次性买断 / 按量计费 / 基础免费+增值收费\n- 下载地址可写多行，每行一条，例如：官方网站的下载页面可以是 “下载地址：官方下载 | 链接”，GitHub网站的下载页面可是“下载地址：GitHub | 链接”\n- 其他链接可写多行，每行一条，例如：应用的插件页面可以是“其他链接：插件下载 | 链接”\n- 没有的字段留空或删除该行",
+      'import.placeholder': '把 Docker 应用资料粘贴到这里，例如：\nDocker应用名称：Jellyfin\n简介：开源媒体服务器\n官方网站：https://jellyfin.org/\n支持系统：Windows, Linux\n授权方式：免费',
+      'import.overwrite': '覆盖表单中已有内容',
+      'import.cancel': '取消',
+      'import.apply': '识别并填入',
+      'import.footTip': '识别只填表单，不会自动保存',
+      'import.empty': '请先粘贴要识别的文字',
+      'import.tooLarge': '内容太长，请控制在 20000 字以内',
+      'import.noParser': '识别组件未加载，请刷新页面重试',
+      'import.summaryFilled': '已填入 {n} 项',
+      'import.summaryNone': '没有识别到可填入的信息，请检查格式或参考示例文档。',
+      'import.summaryNoName': '未识别到 Docker 应用名称，请手动填写。',
+      'import.warnNameTooLong': 'Docker 应用名称超过 60 字，已截断。',
+      'import.warnDescriptionTooLong': '简介超过 4000 字，已截断。',
+      'import.warnBadColor': '背景色格式不正确，已忽略。正确示例：卡片背景色：#F3F4F6 或 #FFF。',
+      'import.warnInvalidUrl': '已跳过 {n} 个无效链接。',
+      'import.warnInvalidUrlItems': '已跳过 {n} 个无效链接，位置：{items}',
+      'import.warnDownloadLimit': '下载地址超过 20 条，已忽略 {n} 条。',
+      'import.warnExtraLimit': '其他链接超过 20 条，已忽略 {n} 条。',
+      'import.warnNoName': '未识别到 Docker 应用名称，请手动填写。',
+      'import.warnNoFields': '没有识别到可填入的信息。',
+      'import.warnUnknownCategories': '以下分类未匹配到现有分类，已跳过：{names}',
       'login.title': '登录',
       'login.username': '用户名',
       'login.password': '密码',
@@ -209,7 +239,7 @@
       'settings.searchSection': '搜索',
       'settings.searchHighlight': '搜索结果高亮关键词显示',
       'settings.about': '关于',
-      'settings.aboutVersion': '当前版本：1.3.0',
+      'settings.aboutVersion': '当前版本：1.4.0',
       'settings.account': '账号安全',
       'settings.currentPwd': '当前密码',
       'settings.newUsername': '新用户名',
@@ -247,6 +277,7 @@
       'toast.iconBig': '图片不能超过 5MB',
       'toast.pageRange': '请输入 1 到 {max} 之间的页码',
       'toast.titleCopied': '已复制标题：{name}',
+      'toast.shareCopied': '已复制「{name}」的 Docker 应用资料',
       'toast.copyFailed': '复制失败，请手动选择标题文字',
       'common.clearInput': '清空',
       'common.showPassword': '显示密码',
@@ -361,6 +392,7 @@
       'empty.search': 'No matches. Try another keyword.',
       'empty.add': '＋ Add Docker app',
       'card.edit': 'Edit',
+      'card.share': 'Share',
       'card.pin': 'Pin',
       'card.unpin': 'Unpin',
       'card.badgePin': 'Pinned',
@@ -424,6 +456,35 @@
       'form.errorName': 'Please enter a name',
       'form.errorCategory': 'Please create and select a category',
       'form.noCategories': 'No categories yet — the card will be saved as Uncategorized',
+      'import.button': 'Import info',
+      'import.title': 'Import Docker app info',
+      'import.hint': 'Paste text containing the Docker app name, description, website, GitHub, platforms, license and other details. The form will be filled automatically by rules. Missing fields may be left blank.',
+      'import.sampleTitle': 'Sample document / AI prompt',
+      'import.copy': 'Copy',
+      'import.copied': 'Copied',
+      'import.copyFailed': 'Copy failed — select the text manually',
+      'import.sample': "Please help me collect these Docker apps and extract the information from the app details. Output strictly in the following markdown format, with no explanations, one block per app:\n```text\nDocker app name:\nDescription:\nWebsite:\nGitHub:\nReleases:\nDocs:\nIcon:\nPlatforms:\nLicense:\nDownload: Name | URL\nOther link: Name | URL\nCard background:\n```\nNotes:\n- Docker app name is plain text; write only the app name\n- Description is plain text; write a short description of the app\n- Website is a URL; write the official website\n- GitHub is a URL; write the GitHub repository address\n- Releases is a URL; write the page about version updates\n- Docs is a URL; write the documentation page; if there are no docs, a help page or FAQ is acceptable\n- Icon is a URL; write the app icon file URL; leave blank if not found\n- Platforms: Windows / Mac / Linux / Android / iOS / HarmonyOS\n- License: Free / Subscription / One-time purchase / Usage-based / Freemium\n- Download can have multiple lines, one per line, in the form “Download: Name | URL”\n- Other link can have multiple lines, one per line, in the form “Other link: Name | URL”\n- Leave missing fields blank or remove the line",
+      'import.placeholder': 'Paste Docker app details here, for example:\nDocker app name: Jellyfin\nDescription: Open-source media server\nWebsite: https://jellyfin.org/\nPlatforms: Windows, Linux\nLicense: Free',
+      'import.overwrite': 'Overwrite existing form content',
+      'import.cancel': 'Cancel',
+      'import.apply': 'Parse and fill',
+      'import.footTip': 'Parsing only fills the form; nothing is saved automatically',
+      'import.empty': 'Paste some text first',
+      'import.tooLarge': 'Too long — keep it within 20,000 characters',
+      'import.noParser': 'Parser not loaded — refresh the page and try again',
+      'import.summaryFilled': 'Filled {n} field(s)',
+      'import.summaryNone': 'Nothing could be filled — check the format or use the sample.',
+      'import.summaryNoName': 'No Docker app name detected — please fill it manually.',
+      'import.warnNameTooLong': 'The Docker app name exceeded 60 characters and was truncated.',
+      'import.warnDescriptionTooLong': 'The description exceeded 4,000 characters and was truncated.',
+      'import.warnBadColor': 'Invalid background color — ignored. Example: Card background: #F3F4F6 or #FFF.',
+      'import.warnInvalidUrl': 'Skipped {n} invalid link(s).',
+      'import.warnInvalidUrlItems': 'Skipped {n} invalid link(s). Location: {items}',
+      'import.warnDownloadLimit': 'More than 20 downloads — {n} were ignored.',
+      'import.warnExtraLimit': 'More than 20 extra links — {n} were ignored.',
+      'import.warnNoName': 'No Docker app name detected — please fill it manually.',
+      'import.warnNoFields': 'No fillable information detected.',
+      'import.warnUnknownCategories': 'These categories did not match and were skipped: {names}',
       'login.title': 'Sign in',
       'login.username': 'Username',
       'login.password': 'Password',
@@ -460,7 +521,7 @@
       'settings.searchSection': 'Search',
       'settings.searchHighlight': 'Highlight matched keywords',
       'settings.about': 'About',
-      'settings.aboutVersion': 'Current version: 1.3.0',
+      'settings.aboutVersion': 'Current version: 1.4.0',
       'settings.account': 'Account security',
       'settings.currentPwd': 'Current password',
       'settings.newUsername': 'New username',
@@ -499,6 +560,7 @@
       'toast.iconBig': 'Image must be under 5MB',
       'toast.pageRange': 'Enter a page between 1 and {max}',
       'toast.titleCopied': 'Title copied: {name}',
+      'toast.shareCopied': 'Copied Docker app details for “{name}”',
       'toast.copyFailed': 'Copy failed, please select the title text manually',
       'common.clearInput': 'Clear',
       'common.showPassword': 'Show password',
@@ -592,6 +654,12 @@
     form: $('#softwareForm'),
     formCategories: $('#formCategories'),
     formError: $('#formError'),
+    btnOpenImport: $('#openImport'),
+    importSummary: $('#importSummary'),
+    importModal: $('#importModal'),
+    importText: $('#importText'),
+    importOverwrite: $('#importOverwrite'),
+    importError: $('#importError'),
     logoPreview: $('#logoPreview'),
     logoUrl: $('#logoUrl'),
     logoFile: $('#logoFile'),
@@ -1560,12 +1628,45 @@
     return luminance < 0.55 ? '#ffffff' : '#1f2329';
   }
 
+  function shareTextForItem(item) {
+    const lines = [];
+    const add = (label, value) => {
+      const text = String(value == null ? '' : value).trim();
+      if (text) lines.push(`${label}：${text}`);
+    };
+    add('Docker应用名称', item.name);
+    add('简介', item.description);
+    ['url_home', 'url_github', 'url_release', 'url_doc'].forEach((key) => {
+      const url = safeHref(item[key]);
+      const labels = { url_home: '官方网站', url_github: 'GitHub', url_release: '版本更新', url_doc: '官方文档' };
+      add(labels[key], url);
+    });
+    const platforms = PLATFORMS.filter((p) => item.platforms && item.platforms[p.key]).map((p) => p.label);
+    add('支持系统', platforms.join(' / '));
+    add('授权方式', (item.licenses || []).map((key) => t(`license.${key}`)).join(' / '));
+    (item.downloads || []).forEach((d) => {
+      const link = safeHref(d && d.link);
+      if (link) lines.push(`下载地址：${String((d && d.text) || '').trim() || '下载'} | ${link}`);
+    });
+    (item.extra_links || []).forEach((d) => {
+      const link = safeHref(d && d.link);
+      if (link) lines.push(`其他链接：${String((d && d.text) || '').trim() || '链接'} | ${link}`);
+    });
+    add('卡片背景色', item.card_color);
+    return lines.join('\n');
+  }
+
   function cardActionsHtml(item, compact) {
-    if (!state.user) return '';
     const ico = (emoji) => `<span class="btn-ico">${emoji}</span>`;
     const txt = (text) => (compact ? '' : `<span class="btn-txt">${escapeHtml(text)}</span>`);
+    const shareLabel = t('card.share');
+    const shareBtn = `<button class="mini-btn share" data-share="${item.id}" title="${escapeHtml(shareLabel)}">${ico('📤')}${txt(shareLabel)}</button>`;
+    if (!state.user) {
+      return `<div class="card-actions">${shareBtn}</div>`;
+    }
     const pinLabel = item.pinned ? t('card.unpin') : t('card.pin');
     return `<div class="card-actions">
+        ${shareBtn}
         <button class="mini-btn pin ${item.pinned ? 'active' : ''}" data-pin="${item.id}" title="${escapeHtml(pinLabel)}">${ico('📌')}${txt(pinLabel)}</button>
         <button class="mini-btn" data-edit="${item.id}" title="${escapeHtml(t('card.edit'))}">${ico('✏️')}${txt(t('card.edit'))}</button>
         <button class="mini-btn danger" data-remove="${item.id}" title="${escapeHtml(t('card.remove'))}">${ico('❌')}${txt(t('card.remove'))}</button>
@@ -2052,6 +2153,252 @@
     })).filter((row) => row.text && row.link);
   }
 
+  function openImportDialog() {
+    els.importError.textContent = '';
+    els.importSummary.hidden = true;
+    els.importText.value = '';
+    els.importOverwrite.checked = false;
+    els.importModal.hidden = false;
+    setTimeout(() => els.importText.focus(), 80);
+  }
+
+  function closeImportDialog() {
+    els.importModal.hidden = true;
+  }
+
+  function importWarningText(warning) {
+    const n = warning.count || (warning.params && warning.params.n) || 1;
+    const names = warning.params && warning.params.names ? warning.params.names : '';
+    switch (warning.code) {
+      case 'nameTooLong': return t('import.warnNameTooLong');
+      case 'descriptionTooLong': return t('import.warnDescriptionTooLong');
+      case 'badColor': return t('import.warnBadColor');
+      case 'invalidUrl': {
+        const items = warning.params && Array.isArray(warning.params.items) ? warning.params.items : [];
+        const linkCount = (warning.params && warning.params.count) || n;
+        if (items.length) return t('import.warnInvalidUrlItems', { n: linkCount, items: items.join('；') });
+        return t('import.warnInvalidUrl', { n: linkCount });
+      }
+      case 'downloadLimit': return t('import.warnDownloadLimit', { n });
+      case 'extraLimit': return t('import.warnExtraLimit', { n });
+      case 'noName': return t('import.warnNoName');
+      case 'noFields': return t('import.warnNoFields');
+      case 'unknownCategories': return t('import.warnUnknownCategories', { names });
+      default: return '';
+    }
+  }
+
+  function applyImportedFields(parsed, overwrite) {
+    const fields = parsed.fields || {};
+    const warnings = (parsed.warnings || []).filter((warning) => warning.code !== 'noName' && warning.code !== 'noFields');
+    let filled = 0;
+
+    const setText = (name, value) => {
+      if (!value) return;
+      const input = els.form.querySelector(`[name="${name}"]`);
+      if (!input) return;
+      if (overwrite || !input.value.trim()) {
+        input.value = value;
+        filled += 1;
+      }
+    };
+
+    setText('name', fields.name);
+    setText('description', fields.description);
+
+    if (fields.logo && (overwrite || !state.modalLogo)) {
+      state.modalLogo = fields.logo;
+      els.logoUrl.value = fields.logo;
+      updateLogoPreview();
+      filled += 1;
+    }
+
+    ['url_home', 'url_github', 'url_release', 'url_doc'].forEach((key) => {
+      if (!fields[key]) return;
+      const input = els.form.querySelector(`[name="${key}"]`);
+      const textInput = els.form.querySelector(`[name="${key}_text"]`);
+      if (!input) return;
+      if (overwrite || !input.value.trim()) {
+        input.value = fields[key];
+        if (textInput) textInput.value = fields[`${key}_text`] || '';
+        filled += 1;
+      }
+    });
+
+    const platformBoxes = Array.from(els.form.querySelectorAll('input[name="platform"]'));
+    const hasPlatforms = fields.platforms && Object.keys(fields.platforms).some((key) => fields.platforms[key]);
+    if (hasPlatforms) {
+      let changed = false;
+      platformBoxes.forEach((box) => {
+        const checked = Boolean(fields.platforms[box.value]);
+        if (checked && !box.checked) {
+          box.checked = true;
+          changed = true;
+        } else if (overwrite && !checked && box.checked) {
+          box.checked = false;
+          changed = true;
+        }
+      });
+      if (changed) filled += 1;
+    }
+
+    if (fields.licenses && fields.licenses.length) {
+      let changed = false;
+      els.form.querySelectorAll('input[name="license"]').forEach((box) => {
+        const checked = fields.licenses.includes(box.value);
+        if (checked && !box.checked) {
+          box.checked = true;
+          changed = true;
+        } else if (overwrite && !checked && box.checked) {
+          box.checked = false;
+          changed = true;
+        }
+      });
+      if (changed) filled += 1;
+    }
+
+    const importedCategories = fields.categories || [];
+    if (importedCategories.length) {
+      const normalizeCat = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+      const matched = new Set();
+      const unmatched = [];
+      importedCategories.forEach((name) => {
+        const found = state.categories.find((cat) => normalizeCat(cat.name) === normalizeCat(name));
+        if (found) matched.add(String(found.id));
+        else unmatched.push(name);
+      });
+      if (matched.size) {
+        let changed = false;
+        els.formCategories.querySelectorAll('input[name="cats"]').forEach((box) => {
+          const checked = matched.has(String(box.value));
+          if (checked && !box.checked) {
+            box.checked = true;
+            changed = true;
+          } else if (overwrite && !checked && box.checked) {
+            box.checked = false;
+            changed = true;
+          }
+        });
+        if (changed) filled += 1;
+      }
+      if (unmatched.length) {
+        warnings.push({ code: 'unknownCategories', params: { names: unmatched.join('、') }, count: 1 });
+      }
+    }
+
+    if (fields.downloads && fields.downloads.length) {
+      const current = overwrite ? [] : collectDownloads().filter((row) => row.text && row.link);
+      const seen = new Set(current.map((row) => row.link.trim().toLowerCase()));
+      let added = 0;
+      fields.downloads.forEach((row) => {
+        const key = String(row.link || '').trim().toLowerCase();
+        if (!key || seen.has(key) || current.length >= 20) return;
+        current.push({ text: row.text || '下载', link: row.link });
+        seen.add(key);
+        added += 1;
+      });
+      if (added) {
+        state.modalDownloads = current;
+        renderDownloadRows();
+        filled += added;
+      }
+    }
+
+    if (fields.extra_links && fields.extra_links.length) {
+      const current = overwrite ? [] : collectExtraLinks();
+      const seen = new Set(current.map((row) => String(row.link || '').trim().toLowerCase()));
+      let added = 0;
+      fields.extra_links.forEach((row) => {
+        const key = String(row.link || '').trim().toLowerCase();
+        if (!key || seen.has(key) || current.length >= 20) return;
+        current.push({ text: row.text || '链接', link: row.link, label: row.label || '' });
+        seen.add(key);
+        added += 1;
+      });
+      if (added) {
+        state.modalExtraLinks = current;
+        renderExtraRows();
+        filled += added;
+      }
+    }
+
+    if (fields.card_color && (overwrite || !els.cardColorText.value.trim())) {
+      state.modalCardColor = fields.card_color;
+      els.cardColorText.value = fields.card_color;
+      syncColorPicker(fields.card_color);
+      filled += 1;
+    } else if (!fields.card_color) {
+      const hadColor = Boolean(els.cardColorText.value.trim());
+      if (overwrite || !hadColor) {
+        state.modalCardColor = '';
+        els.cardColorText.value = '';
+        syncColorPicker('');
+        if (hadColor) filled += 1;
+      }
+    }
+
+    if (!filled) {
+      els.importSummary.hidden = true;
+      return { filled, warnings };
+    }
+
+    const lines = [t('import.summaryFilled', { n: filled })];
+    if (!els.form.querySelector('[name="name"]').value.trim()) lines.push(t('import.summaryNoName'));
+    warnings.forEach((warning) => {
+      const text = importWarningText(warning);
+      if (text) lines.push(text);
+    });
+    els.importSummary.textContent = lines.join('\n');
+    els.importSummary.classList.toggle('has-warning', warnings.length > 0);
+    els.importSummary.hidden = false;
+    return { filled, warnings };
+  }
+
+  function importFromClipboardText() {
+    const raw = els.importText.value.trim();
+    els.importError.textContent = '';
+    if (!raw) {
+      els.importError.textContent = t('import.empty');
+      return;
+    }
+    if (raw.length > 20000) {
+      els.importError.textContent = t('import.tooLarge');
+      return;
+    }
+    const parser = window.SoftwareImportParser;
+    if (!parser || typeof parser.parseImportText !== 'function') {
+      els.importError.textContent = t('import.noParser');
+      return;
+    }
+    const parsed = parser.parseImportText(raw);
+    const result = applyImportedFields(parsed, els.importOverwrite.checked);
+    if (!result.filled) {
+      els.importError.textContent = t('import.summaryNone');
+      return;
+    }
+    closeImportDialog();
+  }
+
+  async function copyImportSample() {
+    const sample = $('#importSample');
+    const text = sample ? sample.textContent : '';
+    if (!text) return;
+    const button = $('#copyImportSample');
+    const ok = await copyText(text);
+    if (!ok) {
+      toast(t('import.copyFailed'), true);
+      return;
+    }
+    if (button) {
+      button.textContent = t('import.copied');
+      button.disabled = true;
+      setTimeout(() => {
+        button.textContent = t('import.copy');
+        button.disabled = false;
+      }, 1600);
+    }
+  }
+
   function openModal(item = null) {
     if (!state.user) {
       openLogin();
@@ -2068,7 +2415,11 @@
 
     els.modalTitle.textContent = t(item ? 'modal.editTitle' : 'modal.addTitle');
     els.formError.textContent = '';
+    els.importSummary.hidden = true;
+    els.importSummary.textContent = '';
+    els.importSummary.classList.remove('has-warning');
     els.form.reset();
+    if (els.btnOpenImport) els.btnOpenImport.hidden = Boolean(item);
     els.form.querySelector('[name="name"]').value = item ? item.name : '';
     els.form.querySelector('[name="description"]').value = item ? item.description || '' : '';
     ['url_home', 'url_github', 'url_release', 'url_doc'].forEach((key) => {
@@ -2517,6 +2868,15 @@
       await copyCardTitle(titleItem ? titleItem.name : titleEl.textContent);
       return;
     }
+    const shareBtn = event.target.closest('[data-share]');
+    if (shareBtn) {
+      const item = state.items.find((i) => String(i.id) === String(shareBtn.dataset.share));
+      if (item) {
+        const ok = await copyText(shareTextForItem(item));
+        toast(ok ? t('toast.shareCopied', { name: item.name }) : t('toast.copyFailed'), !ok);
+      }
+      return;
+    }
     const pinBtn = event.target.closest('[data-pin]');
     if (pinBtn) {
       const item = state.items.find((i) => String(i.id) === String(pinBtn.dataset.pin));
@@ -2737,6 +3097,18 @@
   $('#closeModal').addEventListener('click', closeModal);
   $('#cancelModal').addEventListener('click', closeModal);
   bindMaskClose(els.modal, closeModal);
+  if (els.btnOpenImport) els.btnOpenImport.addEventListener('click', openImportDialog);
+  $('#closeImport').addEventListener('click', closeImportDialog);
+  $('#cancelImport').addEventListener('click', closeImportDialog);
+  bindMaskClose(els.importModal, closeImportDialog);
+  $('#applyImport').addEventListener('click', importFromClipboardText);
+  $('#copyImportSample').addEventListener('click', copyImportSample);
+  els.importText.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      importFromClipboardText();
+    }
+  });
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
     [els.modal, els.loginModal, els.settingsModal, els.hotModal, $('#forgotModal'), els.deleteModal, els.confirmModal].forEach((m) => {

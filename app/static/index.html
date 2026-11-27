@@ -360,7 +360,7 @@ docker compose exec -e RESET_PASSWORD=新密码 my-docker-hub python app/reset_p
 
       <section class="settings-section">
         <h4 data-i18n="settings.about">关于</h4>
-        <p class="about-version" data-i18n="settings.aboutVersion">当前版本：1.3.0</p>
+        <p class="about-version" data-i18n="settings.aboutVersion">当前版本：1.4.0</p>
       </section>
 
     </div>
@@ -410,10 +410,14 @@ docker compose exec -e RESET_PASSWORD=新密码 my-docker-hub python app/reset_p
   <div class="modal">
     <div class="modal-head">
       <h3 id="modalTitle">添加Docker应用</h3>
-      <button class="icon-btn" id="closeModal" title="关闭">×</button>
+      <div class="modal-head-actions">
+        <button type="button" class="btn btn-small btn-ghost" id="openImport" data-i18n="import.button">导入信息</button>
+        <button class="icon-btn" id="closeModal" title="关闭">×</button>
+      </div>
     </div>
     <form id="softwareForm" class="modal-form">
       <div class="modal-body">
+      <div class="import-result" id="importSummary" role="status" hidden></div>
       <div class="form-item">
         <label><span data-i18n="form.name">Docker应用名称</span> <span class="req">*</span></label>
         <input type="text" name="name" required maxlength="60" placeholder="例如：7-Zip">
@@ -535,6 +539,37 @@ docker compose exec -e RESET_PASSWORD=新密码 my-docker-hub python app/reset_p
   </div>
 </div>
 
+<!-- 导入Docker应用信息弹窗 -->
+<div class="modal-mask import-mask" id="importModal" hidden>
+  <div class="modal import-modal">
+    <div class="modal-head">
+      <h3 data-i18n="import.title">导入Docker应用信息</h3>
+      <button class="icon-btn" id="closeImport" title="关闭">×</button>
+    </div>
+    <div class="modal-body import-body">
+      <p class="hint-text import-hint" data-i18n="import.hint">粘贴包含 Docker 应用名称、简介、官网、GitHub、平台、授权等信息的文字，系统会按规则自动识别并填入表单。没有的字段可以留空。</p>
+      <div class="import-sample-head">
+        <span class="import-sample-title" data-i18n="import.sampleTitle">示例文档 / AI 提示词</span>
+        <button type="button" class="btn btn-small btn-ghost" id="copyImportSample" data-i18n="import.copy">复制</button>
+      </div>
+      <pre class="import-sample" id="importSample" data-i18n="import.sample"></pre>
+      <textarea id="importText" class="import-textarea" rows="7" maxlength="20000" data-i18n-ph="import.placeholder" placeholder="把 Docker 应用资料粘贴到这里"></textarea>
+      <label class="import-overwrite">
+        <input type="checkbox" id="importOverwrite">
+        <span data-i18n="import.overwrite">覆盖表单中已有内容</span>
+      </label>
+      <div class="form-error" id="importError"></div>
+    </div>
+    <div class="modal-foot modal-foot-bar import-foot">
+      <span class="import-foot-tip" data-i18n="import.footTip">识别只填表单，不会自动保存</span>
+      <div>
+        <button type="button" class="btn btn-ghost" id="cancelImport" data-i18n="import.cancel">取消</button>
+        <button type="button" class="btn btn-primary" id="applyImport" data-i18n="import.apply">识别并填入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 删除卡片确认 -->
 <div class="modal-mask" id="deleteModal" hidden>
   <div class="modal modal-small">
@@ -576,6 +611,7 @@ docker compose exec -e RESET_PASSWORD=新密码 my-docker-hub python app/reset_p
 
 <div class="toast" id="toast"></div>
 
+<script src="/static/import-parser.js"></script>
 <script src="/static/app.js"></script>
 <script src="/static/scroll-jump.js"></script>
 </body>
